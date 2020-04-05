@@ -52,9 +52,13 @@ def train_generator(df):
             for _id in ids_train_batch.values:
                 img = cv2.imread('input/train_hq/{}.jpg'.format(_id))
                 img = cv2.resize(img, (WIDTH, HEIGHT), interpolation=cv2.INTER_AREA)
-                
+
                 mask = cv2.imread('input/train_masks/{}_mask.png'.format(_id), cv2.IMREAD_GRAYSCALE)
-                mask = cv2.resize(mask, (WIDTH, HEIGHT), interpolation=cv2.INTER_AREA)
+                try:
+                    mask = cv2.resize(mask, (WIDTH, HEIGHT), interpolation=cv2.INTER_AREA)
+                except ValueError:
+                    print('resize error from : input/train_masks/{}_mask.png'.format(_id))
+
                 mask = np.expand_dims(mask, axis=-1)
                 assert mask.ndim == 3
                 
@@ -121,7 +125,7 @@ if __name__ == '__main__':
                                mode='max'),
                  ReduceLROnPlateau(monitor='val_dice_coef',
                                    factor=0.2,
-                                   patience=5,
+                                   patience=3,
                                    verbose=1,
                                    epsilon=1e-4,
                                    mode='max'),
